@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Macro Calculator</title>
+<style>
+:root{
+  --primary:#4a6cf7;
+  --primary-dark:#3451c7;
+  --bg:#f2f4f8;
+  --card:#ffffff;
+  --text:#2b2b2b;
+  --radius:14px;
+}
+body { font-family:'Segoe UI',sans-serif; background:var(--bg); padding:40px; color:var(--text);} 
+.container { max-width:900px; margin:0 auto; background:white; padding:30px; border-radius:var(--radius); box-shadow:0 8px 30px rgba(0,0,0,0.06);} 
+h1 { text-align:center; margin-bottom:25px; font-size:32px; font-weight:700; }
+label { font-weight:600; }
+
+input[type=text], input[type=number]{
+  padding:12px; width:100%; max-width:260px;
+  border:1px solid #d0d0d0; border-radius:var(--radius);
+  margin-top:6px; font-size:15px; transition:0.2s;
+}
+input:focus{ border-color:var(--primary); box-shadow:0 0 0 3px rgba(74,108,247,0.2); outline:none; }
+
+.btn {
+  padding:12px 20px; background:var(--primary); color:white;
+  border:none; border-radius:var(--radius);
+  cursor:pointer; font-size:15px; font-weight:600;
+  transition:0.2s;
+}
+.btn:hover { background:var(--primary-dark); }
+.btn:disabled { background:#9bbce6; cursor:not-allowed; opacity:0.7; }
+
+#ingredientArea { position:relative; max-width:260px; }
+#suggestions {
+  position:absolute; top:48px; width:100%; background:white;
+  border:1px solid #ddd; border-radius:var(--radius);
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  display:none; max-height:220px; overflow-y:auto; z-index:999;
+}
+#suggestions div { padding:10px; cursor:pointer; }
+#suggestions div:hover { background:#f0f4ff; }
+
+table { width:100%; border-collapse:separate; border-spacing:0 10px; margin-top:25px; }
+th { background:#eef1ff; padding:12px; text-align:left; font-weight:700; }
+td { padding:12px; background:white; border-bottom:1px solid #eee; border-radius:var(--radius); }
+
+#totalBox {
+  background:#eefdf2; border-left:6px solid #4caf50;
+  padding:20px; border-radius:var(--radius); margin-top:25px;
+}
+#popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:white; padding:35px 25px; border-radius:var(--radius);
+  box-shadow:0 0 30px rgba(0,0,0,0.25); font-size:20px; min-width:350px; text-align:center;
+}
+.import-box {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f8f9ff;
+  border: 1px solid #d9e0ff;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.import-box h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.import-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #39426a;
+}
+
+.import-file {
+  padding: 12px;
+  width: 100%;
+  max-width: 260px;
+  border-radius: var(--radius);
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  background: white;
+}
+
+.import-btn {
+  width: auto;
+  background: #ff9800 !important;
+  margin-top: 10px;
+}
+
+.import-btn:hover {
+  background: #e68900 !important;
+}
+
+.import-note {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #666;
+}
+
+</style>
+</head>
+<body>
+
+<div id="popup"><div id="popupMessage"></div><button onclick="popup.style.display='none'" class="btn">OK</button></div>
+
+<div class="container">
+<h1>Macro Calculator</h1>
+
+<!-- IMPORT EXCEL UI (Enhanced + moved to top) -->
+<div class="import-box">
+  <h3>📥 Import Ingredients from Excel</h3>
+
+  <label class="import-label">Choose Excel File</label>
+  <input type="file" id="excelFile" accept=".xlsx,.xls" class="import-file">
+
+  <button class="btn import-btn" onclick="importExcel()">Import Excel</button>
+
+  <p class="import-note">Excel columns must be: Ingredient, Calories/100g, Protein/100g, Carbs/100g, Fat/100g</p>
+</div>
+
+<!-- ORIGINAL UI STARTS HERE -->
+<label style="margin-top:20px;">Ingredient:</label>
+<div id="ingredientArea">
+  <input type="text" id="ingredientInput" placeholder="Search ingredient..." autocomplete="off" />
+  <div id="suggestions"></div>
+</div>
+
+
+<label>Ingredient:</label>
+<div id="ingredientArea">
+  <input type="text" id="ingredientInput" placeholder="Search ingredient..." autocomplete="off" />
+  <div id="suggestions"></div>
+</div>
+
+<!-- FIXED: Label placed ABOVE input cleanly -->
+<label style="margin-top:15px; display:block;">Weight (g):</label>
+<input type="number" id="weightInput" disabled placeholder="Enter weight">
+
+<button id="addBtn" class="btn" disabled onclick="addIngredient()">Add Ingredient</button>
+
+<a href="add-ingredient.html" class="btn"
+   style="background:#28a745; margin-top:15px; display:inline-block; text-decoration:none;">
+  ➕ Add New Ingredient
+</a>
+
+<!-- SheetJS library -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+
+<table id="ingredientsTable">
+<thead>
+<tr>
+<th>Ingredient</th><th>Weight</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<div id="totalBox">
+<h3>Total Macros</h3>
+<p id="totalCalories">Calories: 0</p>
+<p id="totalProtein">Protein: 0g</p>
+<p id="totalCarbs">Carbs: 0g</p>
+<p id="totalFat">Fat: 0g</p>
+</div>
+
+</div>
+
+<script>
+let ingredientsDB = {};
+let ingredientNames = [];
+
+async function loadDB(){
+  let jsonDB = {};
+  try {
+    const res = await fetch('ingredients_database.json');
+    jsonDB = await res.json();
+  } catch(e){ console.error("JSON missing"); }
+
+  const custom = JSON.parse(localStorage.getItem('customIngredients')||'{}');
+  ingredientsDB = {...jsonDB, ...custom};
+
+  ingredientNames = Object.keys(ingredientsDB).sort();
+}
+loadDB();
+
+const input = document.getElementById('ingredientInput');
+const weightField = document.getElementById('weightInput');
+const addBtn = document.getElementById('addBtn');
+const box = document.getElementById('suggestions');
+
+input.addEventListener('focus', showFull);
+input.addEventListener('click', showFull);
+
+function showFull(){
+  if(ingredientNames.length===0) return;
+  box.innerHTML = "";
+  ingredientNames.slice(0,100).forEach(n=>{
+    const d=document.createElement('div');
+    d.textContent=n;
+    d.onclick=()=>selectIngredient(n);
+    box.appendChild(d);
+  });
+  box.style.display='block';
+}
+
+input.addEventListener('input', function(){
+  const q = this.value.toLowerCase();
+  box.innerHTML="";
+
+  if(!q){ box.style.display='none'; return; }
+
+  const results = ingredientNames.filter(n=>n.toLowerCase().includes(q));
+  results.forEach(n=>{
+    const d=document.createElement('div');
+    d.innerHTML=n.replace(new RegExp(q,"i"), m=>`<b>${m}</b>`);
+    d.onclick=()=>selectIngredient(n);
+    box.appendChild(d);
+  });
+
+  box.style.display = results.length ? 'block' : 'none';
+});
+
+function selectIngredient(n){
+  input.value=n;
+  weightField.disabled=false;
+  box.style.display='none';
+}
+
+weightField.addEventListener('input', ()=>{
+  addBtn.disabled = !(parseFloat(weightField.value)>0);
+});
+
+weightField.addEventListener('keydown', (e)=>{
+  if(e.key==="Enter" && !addBtn.disabled) addIngredient();
+});
+
+function addIngredient(){
+  const name=input.value;
+  const weight=parseFloat(weightField.value);
+
+  if(!ingredientsDB[name]) return alert("Invalid ingredient");
+  if(weight<=0) return alert("Invalid weight");
+
+  const item=ingredientsDB[name];
+  const row=document.createElement('tr');
+
+  row.innerHTML = `
+    <td>${name}</td>
+    <td contenteditable oninput="recalc(this)">${weight}</td>
+    <td>${(item.cal*weight/100).toFixed(1)}</td>
+    <td>${(item.p*weight/100).toFixed(1)}</td>
+    <td>${(item.c*weight/100).toFixed(1)}</td>
+    <td>${(item.f*weight/100).toFixed(1)}</td>
+    <td><button onclick="this.parentNode.parentNode.remove();updateTotals()">❌</button></td>
+  `;
+
+  document.querySelector('#ingredientsTable tbody').appendChild(row);
+  updateTotals();
+
+  input.value="";
+  weightField.value="";
+  weightField.disabled=true;
+  addBtn.disabled=true;
+}
+
+function recalc(cell){
+  const row = cell.parentNode;
+  const name = row.children[0].innerText;
+  const weight = parseFloat(cell.innerText);
+
+  if (isNaN(weight) || weight <= 0) return;
+
+  const item = ingredientsDB[name];
+
+  row.children[2].innerText = (item.cal * weight / 100).toFixed(1);
+  row.children[3].innerText = (item.p   * weight / 100).toFixed(1);
+  row.children[4].innerText = (item.c   * weight / 100).toFixed(1);
+  row.children[5].innerText = (item.f   * weight / 100).toFixed(1);
+
+  updateTotals();
+}
+
+function updateTotals(){
+  let cal=0,p=0,c=0,f=0;
+
+  document.querySelectorAll('#ingredientsTable tbody tr').forEach(r=>{
+    cal += parseFloat(r.children[2].innerText) || 0;
+    p   += parseFloat(r.children[3].innerText) || 0;
+    c   += parseFloat(r.children[4].innerText) || 0;
+    f   += parseFloat(r.children[5].innerText) || 0;
+  });
+
+  totalCalories.innerText = `Calories: ${cal.toFixed(1)}`;
+  totalProtein.innerText  = `Protein: ${p.toFixed(1)}g`;
+  totalCarbs.innerText    = `Carbs: ${c.toFixed(1)}g`;
+  totalFat.innerText      = `Fat: ${f.toFixed(1)}g`;
+}
+
+function importExcel() {
+  const file = document.getElementById("excelFile").files[0];
+
+  if (!file) return alert("Please select an Excel file.");
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    let custom = JSON.parse(localStorage.getItem("customIngredients") || "{}");
+
+    rows.forEach(row => {
+      const name = row["Ingredient"]?.trim();
+      if (!name) return;
+
+      custom[name] = {
+        cal: Number(row["Calories/100g"]) || 0,
+        p: Number(row["Protein/100g"]) || 0,
+        c: Number(row["Carbs/100g"]) || 0,
+        f: Number(row["Fat/100g"]) || 0
+      };
+    });
+
+    localStorage.setItem("customIngredients", JSON.stringify(custom));
+
+    ingredientsDB = { ...ingredientsDB, ...custom };
+    ingredientNames = Object.keys(ingredientsDB).sort();
+
+    alert("Excel imported successfully!");
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+</script>
+
+</body>
+</html>

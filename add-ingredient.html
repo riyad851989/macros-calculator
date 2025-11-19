@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Add Ingredient</title>
+<style>
+:root{
+  --primary:#4a6cf7;
+  --primary-dark:#3451c7;
+  --secondary:#6c7cff;
+  --bg:#f3f6ff;
+  --card:#ffffff;
+  --radius:18px;
+  --shadow:0 10px 40px rgba(0,0,0,0.08);
+}
+body {
+  font-family:'Inter', sans-serif;
+  background:linear-gradient(135deg, #e8ecff, #f6f8ff);
+  padding:50px;
+  display:flex;
+  justify-content:center;
+}
+.container {
+  width:100%; max-width:520px;
+  background:var(--card);
+  padding:40px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} }
+
+h1 {
+  text-align:center;
+  margin-bottom:25px;
+  font-size:30px;
+  font-weight:800;
+  background:linear-gradient(90deg, var(--primary), var(--secondary));
+background-clip:text;          /* Suggested standard property */
+-webkit-background-clip:text;  /* Required for Chrome/Safari */
+-webkit-text-fill-color:transparent;
+
+}
+
+label {
+  font-weight:600;
+  margin-top:15px;
+  display:block;
+  color:#505578;
+}
+
+input[type=text], input[type=number]{
+  width:100%; padding:14px;
+  margin-top:6px;
+  border-radius:var(--radius);
+  border:2px solid #dce3ff;
+  font-size:16px;
+  background:#fafbff;
+  transition:.2s;
+}
+input:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(74,108,247,0.18);
+  outline:none;
+}
+
+.btn {
+  width:100%; padding:14px;
+  background:var(--primary);
+  color:white;
+  border:none;
+  margin-top:30px;
+  font-size:17px;
+  border-radius:var(--radius);
+  cursor:pointer;
+  transition:.2s;
+  font-weight:600;
+  letter-spacing:.3px;
+}
+.btn:hover { background:var(--primary-dark); transform:translateY(-1px);} 
+
+.success{
+  background:#e8fff0;
+  padding:18px;
+  border-left:6px solid #28a745;
+  border-radius:var(--radius);
+  margin-top:25px;
+  display:none;
+  font-weight:600;
+  color:#236b38;
+  animation:fadeIn .3s ease;
+}
+
+.back-link{
+  display:block;
+  margin-top:25px;
+  text-align:center;
+  font-weight:600;
+  color:var(--primary);
+  text-decoration:none;
+  font-size:15px;
+  transition:.2s;
+}
+.back-link:hover{ color:var(--primary-dark); }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Add New Ingredient</h1>
+
+<label>Name</label>
+<input type="text" id="newName" placeholder="Enter ingredient name">
+
+<label>Calories (per 100g)</label>
+<input type="number" id="newCal" placeholder="Calories">
+
+<label>Protein (per 100g)</label>
+<input type="number" id="newP" placeholder="Protein">
+
+<label>Carbs (per 100g)</label>
+<input type="number" id="newC" placeholder="Carbs">
+
+<label>Fat (per 100g)</label>
+<input type="number" id="newF" placeholder="Fat">
+
+<button class="btn" onclick="saveIngredient()">Add Ingredient</button>
+<div class="success" id="successMsg">Ingredient Added Successfully!</div>
+
+<a href="index.html" class="back-link">⬅ Back to Calculator</a>
+</div>
+
+<script>
+function saveIngredient(){
+  const name = newName.value.trim();
+  const cal = parseFloat(newCal.value);
+  const p = parseFloat(newP.value);
+  const c = parseFloat(newC.value);
+  const f = parseFloat(newF.value);
+
+  if(!name || [cal,p,c,f].some(v=>isNaN(v))){
+    alert("Please enter valid values for all fields.");
+    return;
+  }
+
+  let db = JSON.parse(localStorage.getItem('customIngredients') || '{}');
+  db[name] = {cal,p,c,f};
+  localStorage.setItem('customIngredients', JSON.stringify(db));
+
+  document.getElementById('successMsg').style.display='block';
+
+  newName.value="";
+  newCal.value="";
+  newP.value="";
+  newC.value="";
+  newF.value="";
+}
+</script>
+</body>
+</html>
