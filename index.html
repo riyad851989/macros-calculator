@@ -340,6 +340,17 @@ function importExcel() {
   reader.readAsArrayBuffer(file);
 }
 
+  // Close suggestions menu when clicking outside
+document.addEventListener("click", function (e) {
+  const isInput = e.target === input;
+  const isInsideBox = box.contains(e.target);
+
+  // If clicking anywhere except input or menu content → hide it
+  if (!isInput && !isInsideBox) {
+    box.style.display = "none";
+  }
+});
+
 </script>
 
 </body>
