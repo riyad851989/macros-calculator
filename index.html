@@ -14,6 +14,17 @@
   --radius:14px;
 }
 body { font-family:'Segoe UI',sans-serif; background:var(--bg); padding:40px; color:var(--text);} 
+.top-nav{
+  max-width:900px; margin:0 auto 12px;
+  display:flex; justify-content:flex-end; gap:10px; align-items:center;
+  font-weight:600;
+}
+.top-nav a{
+  color:var(--primary-dark); text-decoration:none; padding:10px 14px;
+  background:white; border:1px solid #dfe5ff; border-radius:12px;
+  transition:0.2s;
+}
+.top-nav a:hover{background:#eef1ff;}
 .container { max-width:900px; margin:0 auto; background:white; padding:30px; border-radius:var(--radius); box-shadow:0 8px 30px rgba(0,0,0,0.06);} 
 h1 { text-align:center; margin-bottom:25px; font-size:32px; font-weight:700; }
 label { font-weight:600; }
@@ -113,6 +124,10 @@ td { padding:12px; background:white; border-bottom:1px solid #eee; border-radius
 
 <div id="popup"><div id="popupMessage"></div><button onclick="popup.style.display='none'" class="btn">OK</button></div>
 
+<nav class="top-nav">
+  <a href="subscription-pricing.html">Subscription Pricing</a>
+</nav>
+
 <div class="container">
 <h1>Macro Calculator</h1>
 
@@ -134,7 +149,6 @@ td { padding:12px; background:white; border-bottom:1px solid #eee; border-radius
   <input type="text" id="ingredientInput" placeholder="Search ingredient..." autocomplete="off" />
   <div id="suggestions"></div>
 </div>
-
 
 <!-- FIXED: Label placed ABOVE input cleanly -->
 <label style="margin-top:15px; display:block;">Weight (g):</label>
@@ -340,7 +354,7 @@ function importExcel() {
   reader.readAsArrayBuffer(file);
 }
 
-  // Close suggestions menu when clicking outside
+// Close suggestions menu when clicking outside
 document.addEventListener("click", function (e) {
   const isInput = e.target === input;
   const isInsideBox = box.contains(e.target);
@@ -350,6 +364,7 @@ document.addEventListener("click", function (e) {
     box.style.display = "none";
   }
 });
+
 
 </script>
 
