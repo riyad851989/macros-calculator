@@ -1,0 +1,73 @@
+{
+  "programs": [
+    {
+      "program": "Loss",
+      "meals": 2,
+      "prices": { "20": 1015, "24": 1169, "30": 1399 }
+    },
+    {
+      "program": "Loss",
+      "meals": 3,
+      "prices": { "20": 1330, "24": 1537, "30": 1855 }
+    },
+    {
+      "program": "Loss",
+      "meals": 4,
+      "prices": { "20": 1596, "24": 1855, "30": 2247 }
+    },
+    {
+      "program": "Gain",
+      "meals": 2,
+      "prices": { "20": 1155, "24": 1337, "30": 1610 }
+    },
+    {
+      "program": "Gain",
+      "meals": 3,
+      "prices": { "20": 1540, "24": 1790, "30": 2170 }
+    },
+    {
+      "program": "Gain",
+      "meals": 4,
+      "prices": { "20": 1876, "24": 2191, "30": 2670 }
+    },
+    {
+      "program": "Stabilize",
+      "meals": 2,
+      "prices": { "20": 1099, "24": 1267, "30": 1525 }
+    },
+    {
+      "program": "Stabilize",
+      "meals": 3,
+      "prices": { "20": 1456, "24": 1687, "30": 2044 }
+    },
+    {
+      "program": "Stabilize",
+      "meals": 4,
+      "prices": { "20": 1764, "24": 2055, "30": 2499 }
+    }
+  ],
+  "pricingCurve": [
+    { "minDays": 3, "maxDays": 5, "factor": 1.2 },
+    { "minDays": 6, "maxDays": 10, "factor": 1.1 },
+    { "minDays": 11, "maxDays": 15, "factor": 1.05 },
+    { "minDays": 16, "maxDays": 19, "factor": 1.02 },
+    { "minDays": 20, "maxDays": 20, "factor": 1.0 },
+    { "minDays": 21, "maxDays": 23, "factor": 0.98 },
+    { "minDays": 24, "maxDays": 26, "factor": 0.96 },
+    { "minDays": 27, "maxDays": 29, "factor": 0.94 },
+    { "minDays": 30, "maxDays": 30, "factor": 0.92 }
+  ],
+  "ui": {
+    "bestValueThreshold": 24,
+    "labels": {
+      "bestValue": "BEST VALUE",
+      "perDay": "Per Day Price",
+      "perMeal": "Per Meal Price"
+    },
+    "colors": {
+      "best": "#C6EFCE",
+      "medium": "#FFF2CC",
+      "worst": "#F4CCCC"
+    }
+  }
+}

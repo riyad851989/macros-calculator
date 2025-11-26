@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Pricing Settings</title>
+  <style>
+    :root{
+      --primary:#4a6cf7;
+      --bg:#f5f6fb;
+      --card:#ffffff;
+      --text:#1d2433;
+      --muted:#6b7280;
+      --radius:14px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:'Segoe UI', sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding:30px;
+    }
+    .top-nav{
+      max-width:1000px; margin:0 auto 12px;
+      display:flex; justify-content:flex-end; gap:10px; align-items:center;
+      font-weight:600;
+    }
+    .top-nav a{
+      color:var(--primary); text-decoration:none; padding:10px 14px;
+      background:white; border:1px solid #dfe5ff; border-radius:12px;
+      transition:0.2s; box-shadow:0 6px 20px rgba(0,0,0,0.05);
+    }
+    .top-nav a.active{background:#eef1ff; color:#1d2433;}
+    .top-nav a:hover{background:#eef1ff;}
+    h1{
+      margin:0 0 12px;
+      text-align:center;
+      font-size:28px;
+    }
+    p.muted{color:var(--muted); text-align:center; margin-top:0; margin-bottom:20px;}
+    .shell{
+      max-width:1000px;
+      margin:0 auto;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:0 10px 38px rgba(0,0,0,0.08);
+      padding:22px;
+      border:1px solid #e3e8ff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+    }
+    th,td{
+      padding:10px;
+      text-align:left;
+      font-size:14px;
+      border-bottom:1px solid #eef1ff;
+    }
+    th{
+      background:#f3f6ff;
+      font-weight:800;
+    }
+    input{
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #d4daf3;
+      background:white;
+    }
+    section{margin-bottom:18px;}
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+    button{
+      padding:12px 16px;
+      border:none;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+      font-size:14px;
+    }
+    #saveSettingsBtn{background:var(--primary); color:white;}
+    #resetSettingsBtn{background:#f3f4f6; color:#1f2937;}
+    #statusMessage{margin-top:10px; font-weight:600;}
+    .curve-actions{
+      display:flex;
+      gap:6px;
+    }
+    .icon-btn{
+      padding:8px 10px;
+      border:none;
+      border-radius:8px;
+      background:#eef1ff;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .inline-actions{
+      display:flex;
+      justify-content:flex-end;
+      align-items:flex-end;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:8px 0 4px;
+    }
+    .ghost-btn{
+      padding:10px 12px;
+      border:1px solid #dfe5ff;
+      background:#f7f8ff;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .ghost-btn:hover{background:#eef1ff;}
+    .import-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:6px;
+    }
+    .link-btn{
+      color:#1d2433;
+      text-decoration:underline;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .link-btn.small{
+      font-size:12px;
+      font-weight:600;
+    }
+    .import-btn{
+      padding:10px 14px;
+      border:none;
+      background:#0fbf7d;
+      color:white;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .import-btn:hover{background:#0ba768;}
+    .help-text{
+      font-size:12px;
+      color:#6b7280;
+      text-align:right;
+      max-width:260px;
+      line-height:1.4;
+    }
+    .icon-btn[disabled]{opacity:0.4; cursor:not-allowed;}
+    @media(max-width:720px){
+      body{padding:18px;}
+      table{font-size:13px;}
+      th,td{padding:8px 6px;}
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html">Macro Calculator</a>
+    <a href="subscription-calculator.html">Subscription Calculator</a>
+    <a href="subscription-settings.html" class="active">Pricing Settings</a>
+  </nav>
+  <h1>Subscription Pricing Settings</h1>
+  <p class="muted">Update base program prices, tweak the pricing curve, and control the best-value flag. Only overrides are stored in your browser.</p>
+
+  <div class="shell">
+    <section id="programs-section">
+      <h2>Program Prices</h2>
+      <div class="inline-actions">
+        <div class="import-wrap">
+          <button id="importCsvBtn" type="button" class="import-btn">Import CSV</button>
+          <a href="#" id="downloadCsvTemplateLink" class="link-btn small">Download CSV template</a>
+          <div class="help-text">Download the template, update 20/24/30-day prices for each program & meals, then import to refresh the table.</div>
+        </div>
+        <input type="file" id="importCsvInput" accept=".csv" style="display:none;">
+      </div>
+      <table id="programs-table">
+        <thead>
+          <tr>
+            <th>Program</th>
+            <th>Meals</th>
+            <th>Price 20d</th>
+            <th>Price 24d</th>
+            <th>Price 30d</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="curve-section">
+      <h2>Pricing Curve</h2>
+      <table id="curve-table">
+        <thead>
+          <tr>
+            <th>Min Days</th>
+            <th>Max Days</th>
+            <th>Factor</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="addCurveRowBtn" type="button" style="margin-top:10px; padding:10px 12px; border:none; background:#eef1ff; color:#1d2437; border-radius:10px; font-weight:700; cursor:pointer;">Add curve row</button>
+    </section>
+
+    <section id="ui-section">
+      <h2>UI Settings</h2>
+      <label>
+        Best Value Threshold (days):
+        <input type="number" id="bestValueThreshold" min="1" max="60" />
+      </label>
+    </section>
+
+    <div class="actions">
+      <button id="saveSettingsBtn">Save Settings</button>
+      <button id="resetSettingsBtn" type="button">Reset to Defaults</button>
+    </div>
+
+    <p id="statusMessage"></p>
+  </div>
+
+  <script src="assets/js/pricing-settings.js"></script>
+  <script src="assets/js/settings-page.js"></script>
+</body>
+</html>
